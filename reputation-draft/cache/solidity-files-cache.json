@@ -36,6 +36,42 @@
       "artifacts": [
         "Reputation"
       ]
+    },
+    "/Users/davidinga/Desktop/david/learn/upc_block/tfm/workspace/TFM/reputation-draft/contracts/Reputation.sol": {
+      "lastModificationDate": 1716591009616,
+      "contentHash": "485545ec9c815665b14c5ad06096a3e2",
+      "sourceName": "contracts/Reputation.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Reputation"
+      ]
     }
   }
 }

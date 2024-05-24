@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract Reputation {
     // Map para reputacion de cada usuario
     mapping(address => uint256) public reputation;
+    mapping(address => bool) public authorizedUsers;
 
     // Array de todas las direcciones de los usuarios
     address[] public users;
