@@ -1,0 +1,51 @@
+node_modules
+.env
+reputation-draft/node_modules
+reputation-draft/.env
+reputation-ui-draft/node_modules
+reputation-ui-draft/.env
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments/chain-31337
+
+
+# Hardhat files
+reputation-draft/cache
+reputation-draft/artifacts
+
+# TypeChain files
+reputation-draft/typechain
+reputation-draft/typechain-types
+
+# solidity-coverage files
+reputation-draft/coverage
+reputation-draft/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+reputation-draft/ignition/deployments/chain-31337
+
+# Hardhat files
+reputation-ui-draft/cache
+reputation-ui-draft/artifacts
+
+# TypeChain files
+reputation-ui-draft/typechain
+reputation-ui-draft/typechain-types
+
+# solidity-coverage files
+reputation-ui-draft/coverage
+reputation-ui-draft/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+reputation-ui-draftignition/deployments/chain-31337
