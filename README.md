@@ -1,6 +1,6 @@
 # TFM
 
-## contract reputation-draft
+## Contract: reputation-draft
 > build y deploy
 ```
 npm install
@@ -9,8 +9,9 @@ npx hardhat compile
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-## contract reputation-ui-draft
+## UI: reputation-ui-draft
 > build y desplegar en el navegador con un server como Live Server
+> Tener configurado pluggin de Metamask en el navegador y conectado a Sepolia
 ```
 npm install
 
