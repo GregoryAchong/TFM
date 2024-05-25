@@ -5,7 +5,7 @@ require("dotenv").config();
 module.exports = {
   solidity: "0.8.24",
   networks: {
-    sepolia: {
+    moonbase: {
       url: `${process.env.SEPOLIA_PROJECT_ID}`,
       accounts: [`${process.env.DEPLOYER_PRIVATE_KEY}`]
     }

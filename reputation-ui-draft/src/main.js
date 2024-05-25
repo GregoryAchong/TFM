@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = '0x2D098d188c3CD6c2d627dcc2B6b84607f4b5b70F'; // contrato
+const CONTRACT_ADDRESS = '0x333C24f40527C31f00018C9d67dD78414381e574'; // contrato
 const CONTRACT_ABI = [
   {
     "anonymous": false,

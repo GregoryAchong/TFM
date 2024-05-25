@@ -1,12 +1,17 @@
 # TFM
 
 ## Contract: reputation-draft
+> crear el archivo .env , asignar el valor de PRIVATE KEY de metamask
+```
+SEPOLIA_PROJECT_ID=https://moonbase-alpha.public.blastapi.io
+DEPLOYER_PRIVATE_KEY=
+```
 > build y deploy
 ```
 npm install
 npx hardhat clean
 npx hardhat compile
-npx hardhat run scripts/deploy.js --network sepolia
+npx hardhat run scripts/deploy.js --network moonbase
 ```
 
 ## UI: reputation-ui-draft
