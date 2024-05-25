@@ -1,5 +1,60 @@
-const CONTRACT_ADDRESS = '0x333C24f40527C31f00018C9d67dD78414381e574'; // contrato
+const CONTRACT_ADDRESS = '0xBA1AF1363308D3f52303d0B0a843126518ae6A9A'; // contrato
 const CONTRACT_ABI = [
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "date",
+        "type": "uint256"
+      }
+    ],
+    "name": "PaymentMade",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startDate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endDate",
+        "type": "uint256"
+      }
+    ],
+    "name": "RentalCreated",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -23,19 +78,33 @@ const CONTRACT_ABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "tenant",
         "type": "address"
-      }
-    ],
-    "name": "authorizedUsers",
-    "outputs": [
+      },
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "startDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "dueDates",
+        "type": "uint256[]"
       }
     ],
-    "stateMutability": "view",
+    "name": "createRental",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -78,6 +147,100 @@ const CONTRACT_ABI = [
     "inputs": [
       {
         "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      }
+    ],
+    "name": "getPaymentPlans",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dueDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "paid",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct Reputation.PaymentPlan[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      }
+    ],
+    "name": "getRental",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "tenant",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endDate",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "dueDate",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "paid",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Reputation.PaymentPlan[]",
+            "name": "paymentPlans",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Reputation.Rental",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "user",
         "type": "address"
       }
@@ -109,6 +272,66 @@ const CONTRACT_ABI = [
     "name": "increaseReputation",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paymentPlanIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "makePayment",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "rentals",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "tenant",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endDate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -180,6 +403,26 @@ document.getElementById('getAllReputationsButton').onclick = async () => {
     await getAllReputations();
 };
 
+document.getElementById('createRentalButton').onclick = async () => {
+  const tenant = document.getElementById('address').value;
+  const startDate = Math.floor(Date.now() / 1000); // Current date in seconds
+  const endDate = startDate + (365 * 24 * 60 * 60); // One year later
+  const amounts = [1000, 1000, 1000]; // Example amounts
+  const dueDates = [startDate + (30 * 24 * 60 * 60), startDate + (60 * 24 * 60 * 60), startDate + (90 * 24 * 60 * 60)]; // Due dates for 3 months
+  await createRental(tenant, startDate, endDate, amounts, dueDates);
+};
+
+document.getElementById('makePaymentButton').onclick = async () => {
+  const tenant = document.getElementById('address').value;
+  const paymentPlanIndex = 0; // Example payment plan index
+  await makePayment(tenant, paymentPlanIndex);
+};
+
+document.getElementById('getRentalButton').onclick = async () => {
+  const tenant = document.getElementById('address').value;
+  await getRental(tenant);
+};
+
 async function connectWallet() {
     if (typeof window.ethereum !== 'undefined') {
         try {
@@ -248,4 +491,44 @@ async function getAllReputations() {
         console.error("Failed to get all reputations:", error);
         alert('Failed to get all reputations');
     }
+}
+
+async function createRental(tenant, startDate, endDate, amounts, dueDates) {
+  try {
+      const tx = await reputationSystem.createRental(tenant, startDate, endDate, amounts, dueDates);
+      await tx.wait();
+      console.log("Rental created!");
+  } catch (error) {
+      console.error("Failed to create rental:", error);
+      alert('Failed to create rental');
+  }
+}
+
+async function makePayment(tenant, paymentPlanIndex) {
+  try {
+      const rental = await reputationSystem.getRental(tenant);
+      const amount = rental.paymentPlans[paymentPlanIndex].amount;
+      const tx = await reputationSystem.makePayment(tenant, paymentPlanIndex, { value: amount });
+      await tx.wait();
+      console.log("Payment made!");
+  } catch (error) {
+      console.error("Failed to make payment:", error);
+      alert('Failed to make payment');
+  }
+}
+
+async function getRental(tenant) {
+  try {
+      const rental = await reputationSystem.getRental(tenant);
+      const rentalInfoDiv = document.getElementById('rentalInfo');
+      rentalInfoDiv.innerHTML = `<h2>Rental Info for ${tenant}</h2>`;
+      rentalInfoDiv.innerHTML += `<p>Start Date: ${new Date(rental.startDate * 1000).toLocaleString()}</p>`;
+      rentalInfoDiv.innerHTML += `<p>End Date: ${new Date(rental.endDate * 1000).toLocaleString()}</p>`;
+      rental.paymentPlans.forEach((plan, index) => {
+          rentalInfoDiv.innerHTML += `<p>Payment Plan ${index + 1}: Amount: ${plan.amount}, Due Date: ${new Date(plan.dueDate * 1000).toLocaleString()}, Paid: ${plan.paid}</p>`;
+      });
+  } catch (error) {
+      console.error("Failed to get rental:", error);
+      alert('Failed to get rental');
+  }
 }
