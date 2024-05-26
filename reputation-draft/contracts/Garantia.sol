@@ -32,7 +32,7 @@ _;
 
  function liberarGarantia (uint256 _tiempoTranscurrido , address payable  withdrawAddress, uint _amount) public  onlyOwner  {
    
-   if( _tiempoTranscurrido == _LiberarGarantia  ){
+   if( _tiempoTranscurrido == _LiberarGarantia && isBlocked == true  ){
        isBlocked=false;
        withdrawAddress.transfer(_amount);
   }
