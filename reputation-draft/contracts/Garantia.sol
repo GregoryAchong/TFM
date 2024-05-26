@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import './Reputation.sol';
 import './PagoAlquiler.sol';
 
-
+//esta es la garantia extra si no tiene reputacion. 
 contract Garantia {
 
 address owner;
