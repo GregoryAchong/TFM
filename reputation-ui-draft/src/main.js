@@ -1,7 +1,13 @@
-const CONTRACT_ADDRESS = '0xBA1AF1363308D3f52303d0B0a843126518ae6A9A'; // contrato
+const CONTRACT_ADDRESS = '0xCCf24d19E1D7c1FAD785DD912C713c57C8889CD4'; // contrato
 const CONTRACT_ABI = [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_callPermitPrecompile",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -73,6 +79,19 @@ const CONTRACT_ABI = [
     ],
     "name": "ReputationChanged",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "callPermitPrecompile",
+    "outputs": [
+      {
+        "internalType": "contract ICallPermitPrecompile",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -285,11 +304,31 @@ const CONTRACT_ABI = [
         "internalType": "uint256",
         "name": "paymentPlanIndex",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
       }
     ],
     "name": "makePayment",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -377,6 +416,7 @@ const CONTRACT_ABI = [
 let provider;
 let signer;
 let reputationSystem;
+let noncePre = 0;
 
 document.getElementById('connectButton').onclick = async () => {
     await connectWallet();
@@ -412,10 +452,20 @@ document.getElementById('createRentalButton').onclick = async () => {
   await createRental(tenant, startDate, endDate, amounts, dueDates);
 };
 
-document.getElementById('makePaymentButton').onclick = async () => {
+/*document.getElementById('makePaymentButton').onclick = async () => {
   const tenant = document.getElementById('address').value;
   const paymentPlanIndex = 0; // Example payment plan index
   await makePayment(tenant, paymentPlanIndex);
+};*/
+document.getElementById('makePaymentButton').onclick = async () => {
+  const tenant = document.getElementById('address').value;
+  const paymentPlanIndex = 0; // Example payment plan index
+  const amount = parseInt(document.getElementById('amount').value); // Example amount
+  const feeAmount = ethers.utils.parseUnits('0.01', 'ether');
+  const nonce = noncePre++; // Example nonce
+
+  const signature = await signMessage(tenant, amount, feeAmount, nonce);
+  await makePayment(tenant, paymentPlanIndex, amount, feeAmount, nonce, signature);
 };
 
 document.getElementById('getRentalButton').onclick = async () => {
@@ -504,11 +554,9 @@ async function createRental(tenant, startDate, endDate, amounts, dueDates) {
   }
 }
 
-async function makePayment(tenant, paymentPlanIndex) {
+async function makePayment(tenant, paymentPlanIndex, amount, feeAmount, nonce, signature) {
   try {
-      const rental = await reputationSystem.getRental(tenant);
-      const amount = rental.paymentPlans[paymentPlanIndex].amount;
-      const tx = await reputationSystem.makePayment(tenant, paymentPlanIndex, { value: amount });
+      const tx = await reputationSystem.makePayment(tenant, paymentPlanIndex, amount, feeAmount, nonce, signature);
       await tx.wait();
       console.log("Payment made!");
   } catch (error) {
@@ -531,4 +579,13 @@ async function getRental(tenant) {
       console.error("Failed to get rental:", error);
       alert('Failed to get rental');
   }
+}
+
+async function signMessage(userAddress, amount, feeAmount, nonce) {
+  const message = ethers.utils.solidityKeccak256(
+      ["address", "address", "uint256", "uint256", "uint256"],
+      [userAddress, CONTRACT_ADDRESS, amount, feeAmount, nonce]
+  );
+  const signature = await signer.signMessage(ethers.utils.arrayify(message));
+  return signature;
 }

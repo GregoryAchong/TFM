@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+interface ICallPermitPrecompile {
+    function permit(
+        address from,
+        address to,
+        uint256 amount,
+        uint256 feeAmount,
+        uint256 nonce,
+        bytes memory signature
+    ) external returns (bool);
+}
+
 contract Reputation {
     // Structs rental y plan de pagos
     struct PaymentPlan {
@@ -35,8 +46,11 @@ contract Reputation {
     event RentalCreated(address indexed tenant, uint256 startDate, uint256 endDate);
     event PaymentMade(address indexed tenant, uint256 amount, uint256 date);
 
-    constructor() {
+    ICallPermitPrecompile public callPermitPrecompile;
+
+    constructor(address _callPermitPrecompile) {
         owner = msg.sender;
+        callPermitPrecompile = ICallPermitPrecompile(_callPermitPrecompile);
     }
 
     modifier onlyOwner() {
@@ -92,7 +106,8 @@ contract Reputation {
         emit RentalCreated(tenant, startDate, endDate);
     }
 
-    function makePayment(address tenant, uint256 paymentPlanIndex) public payable {
+    // realizar un pago con call permit, el gas sera cargado al siner que se hizo off-chain
+    /*function makePayment(address tenant, uint256 paymentPlanIndex) public payable {
         Rental storage rental = rentals[tenant];
         PaymentPlan storage paymentPlan = rental.paymentPlans[paymentPlanIndex];
 
@@ -101,6 +116,35 @@ contract Reputation {
 
         paymentPlan.paid = true;
         emit PaymentMade(tenant, msg.value, block.timestamp);
+    }*/
+
+    // realizar un pago con call permit, el gas sera cargado al siner que se hizo off-chain
+    function makePayment(
+        address tenant,
+        uint256 paymentPlanIndex,
+        uint256 amount,
+        uint256 feeAmount,
+        uint256 nonce,
+        bytes memory signature
+    ) public {
+        Rental storage rental = rentals[tenant];
+        PaymentPlan storage paymentPlan = rental.paymentPlans[paymentPlanIndex];
+
+        require(!paymentPlan.paid, "Payment already made");
+        require(amount == paymentPlan.amount, "Incorrect payment amount");
+
+        bool success = callPermitPrecompile.permit(
+            tenant,
+            address(this),
+            amount,
+            feeAmount,
+            nonce,
+            signature
+        );
+        require(success, "Call Permit Precompile failed");
+
+        paymentPlan.paid = true;
+        emit PaymentMade(tenant, amount, block.timestamp);
     }
 
     function getRental(address tenant) public view returns (Rental memory) {

@@ -38,8 +38,8 @@
       ]
     },
     "/Users/davidinga/Desktop/david/learn/upc_block/tfm/workspace/TFM/reputation-draft/contracts/Reputation.sol": {
-      "lastModificationDate": 1716612961625,
-      "contentHash": "2cb1486e9d65c074945784d0fbc24c16",
+      "lastModificationDate": 1716742805468,
+      "contentHash": "82be8c2e0c9fdb4febeee2aab3edcb87",
       "sourceName": "contracts/Reputation.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -70,6 +70,7 @@
         "^0.8.0"
       ],
       "artifacts": [
+        "ICallPermitPrecompile",
         "Reputation"
       ]
     }
