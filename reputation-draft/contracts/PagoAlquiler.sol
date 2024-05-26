@@ -3,14 +3,21 @@ pragma solidity >=0.6.12 <0.9.0;
 import './Reputation.sol';
 import './Garantia.sol';
 
+
 contract PagoAlquiler {
 
   uint256 public  inicioPago  = block.timestamp;
   uint256 finPago = block.timestamp + 5 days;
 
+   //enviar la fecha de inicial de ejecuacion del contraro 
+   function enviarInicioPago () public view returns (uint256){
+    return inicioPago;
+  }
+
   function comprobarPagoMes( uint32 arrendatario, address user) public   returns (bool) {
     //declarar Variables
     Reputation  Reputacion ; 
+    Garantia Garantias;
     bool pago;
     arrendatario=0; // esto se modifica desde front 
 
@@ -33,7 +40,7 @@ contract PagoAlquiler {
            //resta la reputacion en 5
             Reputacion.decreaseReputation(user , -5);
            //quitar x% de garantia  donde garantia es una address 
-           // garantia[user] = garantia * .95;
+           Garantias.descontarGarantia(user, 0);
            //Devuelve false si fue pago en los 5 dias de ejecucion del contrato
            pago = false;
            return pago ;
