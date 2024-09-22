@@ -1,0 +1,27 @@
+Analyze:
+
+contratos: ReputationManager, DepositManager, RecommendationManager, RentalSystem
+
+
+ReputationManager: Maneja las funciones para aumentar o disminuir la reputación de un usuario.
+DepositManager: Gestiona los depósitos de seguridad, incluyendo la creación y liberación de los mismos.
+RecommendationManager: Gestiona las recomendaciones de arrendatarios y las consecuencias de estas recomendaciones.
+RentalSystem: Actúa como el contrato principal que coordina la creación de acuerdos de alquiler, el pago de alquileres, la finalización de contratos y la actualización de reputaciones. Este contrato interactúa con los otros contratos para manejar las diversas funciones.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
