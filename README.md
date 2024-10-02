@@ -18,9 +18,14 @@ DEPLOYER_PRIVATE_KEY=0xac09iuegdiwged872378478cbed5efcae784d7bf4f2ff80
 
 
 ```shell
+# Deploy local
 npx hardhat compile
+npx hardhat node
+npx hardhat run scripts/deploy.js --network hardhat
+
 npx hardhat test
 REPORT_GAS=true npx hardhat test
-npx hardhat node
+
+# Deploy sepolia
 npx hardhat run scripts/deploy.js --network sepolia
 ```

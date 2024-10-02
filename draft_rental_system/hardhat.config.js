@@ -1,5 +1,5 @@
-//require("@nomicfoundation/hardhat-toolbox");
-require("@nomiclabs/hardhat-ethers");
+require("@nomicfoundation/hardhat-toolbox");
+//require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -9,6 +9,9 @@ module.exports = {
     sepolia: {
       url: `${process.env.SEPOLIA_PROJECT_ID}`,
       accounts: [`${process.env.DEPLOYER_PRIVATE_KEY}`]
+    },
+    hardhat: {
+      chainId: 1337
     }
   }
 };
