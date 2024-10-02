@@ -1,12 +1,36 @@
 async function main() {
-    const [deployer] = await ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
 
-    console.log("deploy contrato con la account:", deployer.address);
+  console.log("deploy contrato con la account:", deployer.address);
 
-    const Reputation = await ethers.getContractFactory("Reputation");
-    const reputation = await Reputation.deploy();
+  //  ReputationManager
+  const ReputationManager = await ethers.getContractFactory("ReputationManager");
+  const reputationManager = await ReputationManager.deploy();
+  await reputationManager.deployed();
+  console.log("ReputationManager address:", reputationManager.address);
 
-    console.log("Reputation adress:", reputation.address);
+  //  DepositManager
+  const DepositManager = await ethers.getContractFactory("DepositManager");
+  const depositManager = await DepositManager.deploy();
+  await depositManager.deployed();
+  console.log("DepositManager address:", depositManager.address);
+
+  //  RecommendationManager
+  const RecommendationManager = await ethers.getContractFactory("RecommendationManager");
+  const recommendationManager = await RecommendationManager.deploy();
+  await recommendationManager.deployed();
+  console.log("RecommendationManager address:", recommendationManager.address);
+
+  //  RentalSystem con los demas contracts
+  const RentalSystem = await ethers.getContractFactory("RentalSystem");
+  const rentalSystem = await RentalSystem.deploy(
+    reputationManager.address,
+    depositManager.address,
+    recommendationManager.address
+  );
+  await rentalSystem.deployed();
+  console.log("RentalSystem address:", rentalSystem.address);
+
 }
 
 main()
