@@ -10,10 +10,19 @@ describe("RentalSystem", function () {
   before(async () => {
     // Obtener los signers (cuentas) del entorno de pruebas
     [landlord, tenant] = await ethers.getSigners();
+    console.log("1 landlord: ", landlord);
+    console.log("1 tenant: ", tenant);
+
+    // Desplegar SoulContract
+    const SoulContract = await ethers.getContractFactory("SoulContract");
+    const soulContract = await SoulContract.deploy();
+    await soulContract.deployed();
 
     // Desplegar ReputationManager
     const ReputationManager = await ethers.getContractFactory("ReputationManager");
-    reputationManager = await ReputationManager.deploy();
+    reputationManager = await ReputationManager.deploy(
+        soulContract.address
+    );
     await reputationManager.deployed();
 
     // Desplegar DepositManager
@@ -40,6 +49,8 @@ describe("RentalSystem", function () {
     const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
     const rentalPeriod = 30 * 24 * 60 * 60; // 30 días en segundos
 
+    console.log("3 tenant: ", tenant);
+
     // El inquilino se suscribe
     await expect(rentalSystem.connect(tenant).subscribe(rentAmount, rentalPeriod, { value: rentAmount }))
       .to.emit(rentalSystem, "Subscribed")
@@ -60,6 +71,8 @@ describe("RentalSystem", function () {
     await ethers.provider.send("evm_increaseTime", [30 * 24 * 60 * 60]); // Adelanta 30 días
     await ethers.provider.send("evm_mine", []); // Minar el siguiente bloque
 
+    console.log("4 tenant: ", tenant);
+
     // Pagar la renta
     await expect(rentalSystem.connect(tenant).payRent({ value: rentAmount }))
       .to.emit(rentalSystem, "RentPaid")
@@ -77,6 +90,8 @@ describe("RentalSystem", function () {
     await ethers.provider.send("evm_increaseTime", [32 * 24 * 60 * 60]); // Adelanta 32 días
     await ethers.provider.send("evm_mine", []); // Minar el siguiente bloque
 
+    console.log("5 tenant: ", tenant);
+
     // Pagar la renta tarde
     await expect(rentalSystem.connect(tenant).payRent({ value: rentAmount }))
       .to.emit(rentalSystem, "RentPaid");
@@ -84,7 +99,7 @@ describe("RentalSystem", function () {
     // Comparar los timestamps con una tolerancia
     const actualNextPaymentDueDate = (await rentalSystem.tenants(tenant.address)).nextPaymentDueDate;
     const expectedNextPaymentDueDate = (await ethers.provider.getBlock("latest")).timestamp + 30 * 24 * 60 * 60;
-    expect(actualNextPaymentDueDate).to.be.closeTo(expectedNextPaymentDueDate, 4000); // tolerancia de 2 segundos
+    expect(actualNextPaymentDueDate).to.be.closeTo(expectedNextPaymentDueDate, 100); // tolerancia de 2 segundos
 
     // Verificar la reputación del inquilino después de pagar tarde
     const reputation = await reputationManager.getReputation(tenant.address);
@@ -93,6 +108,7 @@ describe("RentalSystem", function () {
 
   it("Debería permitir al arrendador finalizar la relación con el inquilino", async function () {
     // El arrendador termina la relación con el inquilino
+    console.log("2 landlord: ", landlord);
     await expect(rentalSystem.connect(landlord).endRelationship(tenant.address))
       .to.emit(rentalSystem, "RelationshipEnded")
       .withArgs(tenant.address);

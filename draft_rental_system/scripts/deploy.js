@@ -3,9 +3,17 @@ async function main() {
 
   console.log("deploy contrato con la account:", deployer.address);
 
+  //SoulContract
+  const SoulContract = await ethers.getContractFactory("SoulContract");
+  const soulContract = await SoulContract.deploy();
+  await soulContract.deployed();
+  console.log("SoulContract address:", soulContract.address);
+
   //  ReputationManager
   const ReputationManager = await ethers.getContractFactory("ReputationManager");
-  const reputationManager = await ReputationManager.deploy();
+  const reputationManager = await ReputationManager.deploy(
+    soulContract.address
+  );
   await reputationManager.deployed();
   console.log("ReputationManager address:", reputationManager.address);
 

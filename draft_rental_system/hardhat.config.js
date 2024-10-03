@@ -12,6 +12,10 @@ module.exports = {
     },
     hardhat: {
       chainId: 1337
+    },
+    moonbase: {
+      url: `${process.env.MOONBASE_PROJECT_ID}`,
+      accounts: [`${process.env.DEPLOYER_PRIVATE_KEY}`]
     }
   }
 };
