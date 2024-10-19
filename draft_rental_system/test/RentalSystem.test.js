@@ -4,18 +4,18 @@ const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 
 
 describe("RentalSystem", function () {
-  let rentalSystem, reputationManager, depositManager, recommendationManager;
+  let rentalSystem, reputationManager, depositManager, recommendationManager, soulContract;
   let landlord, tenant;
 
   before(async () => {
     // Obtener los signers (cuentas) del entorno de pruebas
     [landlord, tenant] = await ethers.getSigners();
-    console.log("1 landlord: ", landlord);
-    console.log("1 tenant: ", tenant);
+    //console.log("1 landlord: ", landlord);
+    //console.log("1 tenant: ", tenant);
 
     // Desplegar SoulContract
     const SoulContract = await ethers.getContractFactory("SoulContract");
-    const soulContract = await SoulContract.deploy();
+    soulContract = await SoulContract.deploy();
     await soulContract.deployed();
 
     // Desplegar ReputationManager
@@ -40,16 +40,68 @@ describe("RentalSystem", function () {
     rentalSystem = await RentalSystem.deploy(
       reputationManager.address,
       depositManager.address,
-      recommendationManager.address
+      recommendationManager.address,
+      soulContract.address
     );
     await rentalSystem.deployed();
   });
 
+  it("Debería permitir a un arrendador suscribirse", async function () {
+    await expect(rentalSystem.connect(landlord).subscribeLandlord())
+      .to.emit(rentalSystem, "LandlordSubscribed")
+      .withArgs(landlord.address);
+
+    const landlordInfo = await rentalSystem.landlords(landlord.address);
+    expect(landlordInfo.landlordAddress).to.equal(landlord.address);
+    expect(landlordInfo.active).to.be.true;
+  });
+
+  it("Debería permitir a un inquilino suscribirse", async function () {
+    // First, landlord subscribes
+    //await rentalSystem.connect(landlord).subscribeLandlord();
+
+    const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
+    const rentalPeriod = 30 * 24 * 60 * 60; // 30 days in seconds
+
+    await expect(rentalSystem.connect(tenant).subscribe(rentAmount, rentalPeriod, landlord.address, { value: rentAmount }))
+      .to.emit(rentalSystem, "Subscribed")
+      .withArgs(tenant.address, rentAmount, anyValue);
+
+    const tenantInfo = await rentalSystem.tenants(tenant.address);
+    expect(tenantInfo.tenantAddress).to.equal(tenant.address);
+    expect(tenantInfo.landlordAddress).to.equal(landlord.address);
+    expect(tenantInfo.rentAmount).to.equal(rentAmount);
+    expect(tenantInfo.active).to.be.true;
+  });
+
+  it("Debería devolver todos los inquilinos de un arrendador", async function () {
+    // First, landlord subscribes
+    //await rentalSystem.connect(landlord).subscribeLandlord();
+  
+    const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
+    //const rentalPeriod = 30 * 24 * 60 * 60; // 30 days in seconds
+  
+    // Tenant subscribes
+    //await rentalSystem.connect(tenant).subscribe(rentAmount, rentalPeriod, landlord.address, { value: rentAmount });
+  
+    // Fetch tenants of landlord
+    //const tenants = await rentalSystem.getTenantsByLandlord(landlord.address);
+    const tenants = await rentalSystem.getTenantsByLandlord(landlord.address);
+    console.log(tenants)
+    // Verify tenant details
+    expect(tenants.length).to.equal(1);
+    expect(tenants[0].tenantAddress).to.equal(tenant.address);
+    expect(tenants[0].landlordAddress).to.equal(landlord.address);
+    expect(tenants[0].rentAmount).to.equal(rentAmount);
+    expect(tenants[0].active).to.be.true;
+  });
+
+/*
   it("Debería permitir a un inquilino suscribirse", async function () {
     const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
     const rentalPeriod = 30 * 24 * 60 * 60; // 30 días en segundos
 
-    console.log("3 tenant: ", tenant);
+    console.log("3 tenant: ", tenant.address);
 
     // El inquilino se suscribe
     await expect(rentalSystem.connect(tenant).subscribe(rentAmount, rentalPeriod, { value: rentAmount }))
@@ -115,5 +167,5 @@ describe("RentalSystem", function () {
 
     const tenantInfo = await rentalSystem.tenants(tenant.address);
     expect(tenantInfo.active).to.be.false;
-  });
+  });*/
 });

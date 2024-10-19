@@ -4,9 +4,11 @@ pragma solidity ^0.8.0;
 import "./ReputationManager.sol";
 import "./DepositManager.sol";
 import "./RecommendationManager.sol";
+import "./SoulContract.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract RentalSystem is ReentrancyGuard, AccessControl {
     using SafeMath for uint256;
@@ -14,21 +16,31 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
     ReputationManager public reputationManager;
     DepositManager public depositManager;
     RecommendationManager public recommendationManager;
+    SoulContract public soulContract;
 
     struct Tenant {
         address tenantAddress;
+        address landlordAddress;
         uint256 rentAmount;
         uint256 nextPaymentDueDate;
         bool active;
         uint256 pendingAmount;
     }
 
+    struct Landlord {
+        address landlordAddress;
+        bool active;
+    }
+
     bytes32 public constant LANDLORD_ROLE = keccak256("LANDLORD_ROLE");
     mapping(address => Tenant) public tenants;
+    address[] public tenantAddresses;
+    mapping(address => Landlord) public landlords;
     address public landlord;
     bool public paused = false;
 
     event Subscribed(address indexed tenant, uint256 rentAmount, uint256 nextPaymentDueDate);
+    event LandlordSubscribed(address indexed landlord);
     event RentPaid(address indexed tenant, uint256 amount, uint256 nextPaymentDueDate);
     event Unsubscribed(address indexed tenant);
     event RelationshipEnded(address indexed tenant);
@@ -50,28 +62,49 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
         _;
     }
 
-    constructor(address _reputationManager, address _depositManager, address _recommendationManager) {
+    constructor(address _reputationManager, address _depositManager, address _recommendationManager, address _soulContract) {
         reputationManager = ReputationManager(_reputationManager);
         depositManager = DepositManager(_depositManager);
         recommendationManager = RecommendationManager(_recommendationManager);
+        soulContract = SoulContract(_soulContract);
         _setupRole(LANDLORD_ROLE, msg.sender); // explain
         landlord = msg.sender; // explain
     }
 
-    function subscribe(uint256 rentAmount, uint256 rentalPeriod) external payable whenNotPaused {
+    function subscribe(uint256 rentAmount, uint256 rentalPeriod, address landlordAddress) external payable whenNotPaused {
+        require(landlords[landlordAddress].landlordAddress != address(0), "Landlord must be subscribed");
         require(tenants[msg.sender].tenantAddress == address(0), "Already subscribed");
         require(msg.value == rentAmount, "Initial payment must equal rent amount");
+        console.log(msg.sender);
+        console.log(tenants[msg.sender].tenantAddress);
 
         tenants[msg.sender] = Tenant({
             tenantAddress: msg.sender,
+            landlordAddress: landlordAddress,
             rentAmount: rentAmount,
             nextPaymentDueDate: block.timestamp + rentalPeriod,
             active: true,
             pendingAmount: 0
         });
 
+        tenantAddresses.push(msg.sender);
+
         depositManager.createDeposit{value: msg.value}(msg.sender, rentAmount, block.timestamp + rentalPeriod);
+        soulContract.createSoul(msg.sender, "Tenant Soul");
         emit Subscribed(msg.sender, rentAmount, block.timestamp + rentalPeriod);
+    }
+
+    function subscribeLandlord() external whenNotPaused {
+        require(landlords[msg.sender].landlordAddress == address(0), "Already subscribed as landlord");
+
+        landlords[msg.sender] = Landlord({
+            landlordAddress: msg.sender,
+            active: true
+        });
+
+        soulContract.createSoul(msg.sender, "Landlord Soul");
+        _setupRole(LANDLORD_ROLE, msg.sender);
+        emit LandlordSubscribed(msg.sender);
     }
 
     function payRent() external payable onlyTenant nonReentrant whenNotPaused {
@@ -120,5 +153,24 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
     function unpause() external onlyLandlord {
         paused = false;
         emit Unpaused();
+    }
+
+    function getTenantsByLandlord(address landlordAddress) external view returns (Tenant[] memory) {
+        require(landlords[landlordAddress].active, "Landlord must be active");
+        uint256 tenantCount = 0;
+        for (uint256 i = 0; i < tenantAddresses.length; i++) {
+            if (tenants[tenantAddresses[i]].landlordAddress == landlordAddress) {
+                tenantCount++;
+            }
+        }
+        Tenant[] memory result = new Tenant[](tenantCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < tenantAddresses.length; i++) {
+            if (tenants[tenantAddresses[i]].landlordAddress == landlordAddress) {
+                result[index] = tenants[tenantAddresses[i]];
+                index++;
+            }
+        }
+        return result;
     }
 }

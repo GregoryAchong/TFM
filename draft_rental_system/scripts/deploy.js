@@ -34,7 +34,8 @@ async function main() {
   const rentalSystem = await RentalSystem.deploy(
     reputationManager.address,
     depositManager.address,
-    recommendationManager.address
+    recommendationManager.address,
+    soulContract.address
   );
   await rentalSystem.deployed();
   console.log("RentalSystem address:", rentalSystem.address);
