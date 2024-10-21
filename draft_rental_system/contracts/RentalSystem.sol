@@ -73,6 +73,7 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
 
     function subscribe(uint256 rentAmount, uint256 rentalPeriod, address landlordAddress) external payable whenNotPaused {
         require(landlords[landlordAddress].landlordAddress != address(0), "Landlord must be subscribed");
+        require(landlordAddress != msg.sender, "Landlord no puede ser su propio tenant");
         require(tenants[msg.sender].tenantAddress == address(0), "Already subscribed");
         require(msg.value == rentAmount, "Initial payment must equal rent amount");
         console.log(msg.sender);
@@ -90,7 +91,8 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
         tenantAddresses.push(msg.sender);
 
         depositManager.createDeposit{value: msg.value}(msg.sender, rentAmount, block.timestamp + rentalPeriod);
-        soulContract.createSoul(msg.sender, "Tenant Soul");
+        //soulContract.createSoul(msg.sender, "Tenant Soul");
+        soulContract.createSoul(msg.sender, landlords[msg.sender].active ? "Tenant Soul (Landlord)" : "Tenant Soul");
         emit Subscribed(msg.sender, rentAmount, block.timestamp + rentalPeriod);
     }
 
@@ -102,7 +104,14 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
             active: true
         });
 
-        soulContract.createSoul(msg.sender, "Landlord Soul");
+        //soulContract.createSoul(msg.sender, "Landlord Soul");
+        console.log("******1**********");
+        console.log(tenants[msg.sender].tenantAddress);
+        console.log("******2**********");
+        console.log(tenants[msg.sender].active);
+        console.log("******3**********");
+        soulContract.createSoul(msg.sender, tenants[msg.sender].active ? "Landlord Soul (Tenant)" : "Landlord Soul");
+        console.log("******4**********");
         _setupRole(LANDLORD_ROLE, msg.sender);
         emit LandlordSubscribed(msg.sender);
     }

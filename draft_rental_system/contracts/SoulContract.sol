@@ -36,9 +36,12 @@ contract SoulContract is AccessControl {
     // Crear un nuevo Soul asegurando que la identidad (identity) sea única
     //function createSoul(address _soulAddress, string memory _identity) external onlyRole(ADMIN_ROLE) {
     function createSoul(address _soulAddress, string memory _identity) external {
-        require(bytes(souls[_soulAddress].identity).length == 0, "Soul already exists for this address");
-        require(identityToSoulAddress[_identity] == address(0), "Identity already in use");
-
+    require(identityToSoulAddress[_identity] == address(0), "Identity already in use");
+    if (bytes(souls[_soulAddress].identity).length != 0) {
+        // Si ya existe un Soul, actualizar la identidad
+        souls[_soulAddress].identity = string(abi.encodePacked(souls[_soulAddress].identity, " | ", _identity));
+    } else {
+        // Crear un nuevo Soul
         Soul storage newSoul = souls[_soulAddress];
         newSoul.identity = _identity;
         newSoul.createdAt = block.timestamp;
@@ -48,6 +51,7 @@ contract SoulContract is AccessControl {
 
         emit SoulCreated(_soulAddress, _identity, block.timestamp);
     }
+}
 
     // Añadir reputación a un Soul basado en la dirección (soulAddress)
     function addReputation(address _soulAddress, int256 _value, string memory _comment) external onlyRole(ADMIN_ROLE) {

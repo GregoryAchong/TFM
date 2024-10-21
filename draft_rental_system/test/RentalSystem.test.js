@@ -74,6 +74,34 @@ describe("RentalSystem", function () {
     expect(tenantInfo.active).to.be.true;
   });
 
+  it("Debería permitir a un inquilino suscribirse como arrendador", async function () {
+    await expect(rentalSystem.connect(tenant).subscribeLandlord())
+      .to.emit(rentalSystem, "LandlordSubscribed")
+      .withArgs(tenant.address);
+
+    const landlordInfo = await rentalSystem.landlords(tenant.address);
+    expect(landlordInfo.landlordAddress).to.equal(tenant.address);
+    expect(landlordInfo.active).to.be.true;
+  });
+
+  it("Debería permitir a un arrendador suscribirse como inquilino", async function () {
+    // First, landlord subscribes
+    //await rentalSystem.connect(landlord).subscribeLandlord();
+
+    const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
+    const rentalPeriod = 30 * 24 * 60 * 60; // 30 days in seconds
+
+    await expect(rentalSystem.connect(landlord).subscribe(rentAmount, rentalPeriod, tenant.address, { value: rentAmount }))
+      .to.emit(rentalSystem, "Subscribed")
+      .withArgs(landlord.address, rentAmount, anyValue);
+
+    const tenantInfo = await rentalSystem.tenants(landlord.address);
+    expect(tenantInfo.tenantAddress).to.equal(landlord.address);
+    expect(tenantInfo.landlordAddress).to.equal(tenant.address);
+    expect(tenantInfo.rentAmount).to.equal(rentAmount);
+    expect(tenantInfo.active).to.be.true;
+  });
+
   it("Debería devolver todos los inquilinos de un arrendador", async function () {
     // First, landlord subscribes
     //await rentalSystem.connect(landlord).subscribeLandlord();
