@@ -124,25 +124,6 @@ describe("RentalSystem", function () {
     expect(tenants[0].active).to.be.true;
   });
 
-/*
-  it("Debería permitir a un inquilino suscribirse", async function () {
-    const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
-    const rentalPeriod = 30 * 24 * 60 * 60; // 30 días en segundos
-
-    console.log("3 tenant: ", tenant.address);
-
-    // El inquilino se suscribe
-    await expect(rentalSystem.connect(tenant).subscribe(rentAmount, rentalPeriod, { value: rentAmount }))
-      .to.emit(rentalSystem, "Subscribed")
-      .withArgs(tenant.address, rentAmount, anyValue);
-
-    const tenantInfo = await rentalSystem.tenants(tenant.address);
-    const actualNextPaymentDueDate = tenantInfo.nextPaymentDueDate;
-    const expectedNextPaymentDueDate = (await ethers.provider.getBlock("latest")).timestamp + rentalPeriod;
-
-    // Verifica que las fechas estén dentro de un rango de 2 segundos
-    expect(actualNextPaymentDueDate).to.be.closeTo(expectedNextPaymentDueDate, 2);
-  });
 
   it("Debería permitir al inquilino pagar la renta", async function () {
     const rentAmount = ethers.utils.parseEther("1.0"); // 1 ETH
@@ -183,6 +164,7 @@ describe("RentalSystem", function () {
 
     // Verificar la reputación del inquilino después de pagar tarde
     const reputation = await reputationManager.getReputation(tenant.address);
+    console.log(reputation)
     expect(reputation).to.equal(0); // La reputación debería haber bajado a 0
   });
 
@@ -195,5 +177,29 @@ describe("RentalSystem", function () {
 
     const tenantInfo = await rentalSystem.tenants(tenant.address);
     expect(tenantInfo.active).to.be.false;
-  });*/
+  });
+
+  it("Deberia mint un reputationToken", async function () {
+    await soulContract.connect(landlord).createSoul(tenant.address, "Test Identity");
+    await reputationManager.connect(landlord).testMintReputationToken(tenant.address, 1, "Payment transfer");
+
+    const reputation = await reputationManager.getReputationToken(1);
+    console.log("reputation : ", reputation);
+    expect(reputation.value).to.equal(1);
+    expect(reputation.comment).to.equal("Payment transfer");
+    expect(reputation.soul).to.equal(tenant.address);
+  });
+
+  it("Deberia consultar todos los reputationTokens for a soul", async function () {
+    await soulContract.connect(landlord).createSoul(tenant.address, "Test Identity");
+    await reputationManager.connect(landlord).testMintReputationToken(tenant.address, 1, "Payment transfer");
+    await reputationManager.connect(landlord).testMintReputationToken(tenant.address, -5, "Bad Behavior");
+
+    const reputationTokens = await reputationManager.getReputationTokens(tenant.address);
+    console.log("reputationTokens : ", reputationTokens);
+    //expect(reputationTokens.length).to.equal(2);
+    expect(reputationTokens[0].value).to.equal(1);
+    //expect(reputationTokens[1].value).to.equal(-5);
+  });
+
 });

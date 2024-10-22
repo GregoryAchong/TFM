@@ -28,6 +28,8 @@ DEPLOYER_PRIVATE_KEY=0xac09iuegdiwged872378478cbijunhygtfrde7654322ff80
 
 
 ```shell
+npm install
+
 # Deploy local
 npx hardhat compile
 npx hardhat node

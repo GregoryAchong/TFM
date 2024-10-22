@@ -33,6 +33,7 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
     }
 
     bytes32 public constant LANDLORD_ROLE = keccak256("LANDLORD_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     mapping(address => Tenant) public tenants;
     address[] public tenantAddresses;
     mapping(address => Landlord) public landlords;
@@ -133,7 +134,7 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
         if (tenant.pendingAmount == 0) {
             tenant.nextPaymentDueDate = tenant.nextPaymentDueDate.add(30 days);
             if (block.timestamp <= tenant.nextPaymentDueDate + 1 days) {
-                reputationManager.increaseReputation(msg.sender, 1); // Suma 1 punto si paga a tiempo
+                reputationManager.increaseReputation(msg.sender, 1, msg.sender, "Payment transfer"); // Suma 1 punto si paga a tiempo
             } else {
                 reputationManager.decreaseReputation(msg.sender, 1); // Resta 1 punto si paga tarde
             }
