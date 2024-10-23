@@ -202,4 +202,10 @@ describe("RentalSystem", function () {
     //expect(reputationTokens[1].value).to.equal(-5);
   });
 
+  it("Deberia consultar tokens por Soul", async function () {
+    const tokens = await soulContract.getTokensBySoul(tenant.address);
+    console.log("tokens by soul: ", tokens)
+    expect(tokens.map(t => t.toNumber())).to.deep.equal([0,1, 2, 3,4]);
+  })
+
 });
