@@ -1,9 +1,9 @@
 node_modules
 .env
+.DS_Store
 
-
-draft_rental_system/node_modules
-draft_rental_system/.env
+rental_system/node_modules
+rental_system/.env
 # Hardhat files
 /cache
 /artifacts
@@ -21,17 +21,17 @@ ignition/deployments/chain-31337
 
 
 # Hardhat files
-draft_rental_system/cache
-draft_rental_system/artifacts
+rental_system/cache
+rental_system/artifacts
 
 # TypeChain files
-draft_rental_system/typechain
-draft_rental_system/typechain-types
+rental_system/typechain
+rental_system/typechain-types
 
 # solidity-coverage files
-draft_rental_system/coverage
-draft_rental_system/coverage.json
+rental_system/coverage
+rental_system/coverage.json
 
 # Hardhat Ignition default folder for deployments against a local node
-draft_rental_system/ignition/deployments/chain-31337
+rental_system/ignition/deployments/chain-31337
 

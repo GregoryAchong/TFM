@@ -13,7 +13,6 @@ contract ReputationManager is ERC721URIStorage, AccessControl{
     event RewardGranted(address indexed user, int256 points);
     event PenaltyImposed(address indexed user, int256 points);
 
-    // INI - sbt new coding
     struct Reputation {
         int256 value;
         string comment;
@@ -25,9 +24,6 @@ contract ReputationManager is ERC721URIStorage, AccessControl{
     int256[] public allowedValues = [-5, 1];
 
     SoulContract public soulContract;
-    
-    // Almacena reputaciones emitidas
-    //mapping(uint256 => Reputation) public reputations; 
 
     mapping(uint256 => Reputation) public reputationTokens;         // Almacenar todos los tokens de reputación
 
@@ -41,7 +37,6 @@ contract ReputationManager is ERC721URIStorage, AccessControl{
         soulContract = SoulContract(_soulContractAddress);
         _grantRole(ADMIN_ROLE, msg.sender);
     }
-    // FIN - sbt new coding
 
     function increaseReputation(address user, int256 amount, address _soul, string memory _comment) external {
         reputationsOld[user] += amount;
@@ -61,7 +56,7 @@ contract ReputationManager is ERC721URIStorage, AccessControl{
         return reputationsOld[user];
     }
 
-    // INI - sbt new coding
+
     function addAllowedValue(int256 _value) external onlyRole(ADMIN_ROLE) {
         allowedValues.push(_value);
     }
@@ -132,5 +127,5 @@ contract ReputationManager is ERC721URIStorage, AccessControl{
     function getAllowedValues() external view returns (int256[] memory) {
         return allowedValues;
     }
-    // FIN - sbt new coding
+
 }

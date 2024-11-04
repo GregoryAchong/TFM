@@ -14,10 +14,7 @@ contract SoulContract is AccessControl {
 
     mapping(address => Soul) private souls;
     mapping(address => uint256[]) private soulToReputationTokenIds; // ID de tokens de reputación asociados a cada Soul
-    //mapping(uint256 => Reputation) public reputationTokens;         // Almacenar todos los tokens de reputación
     mapping(string => address) private identityToSoulAddress;       // Para buscar por identidad (identity)
-
-    //uint256 public reputationCounter = 0; // Contador para asignar IDs únicos a los tokens de reputación
 
     // Eventos para la trazabilidad
     event SoulCreated(address indexed soulAddress, string identity, uint256 createdAt);
@@ -52,16 +49,6 @@ contract SoulContract is AccessControl {
     function addTokenReputationBySoul(address _soulAddress, uint256 _tokenId) external {
         require(bytes(souls[_soulAddress].identity).length != 0, "Soul does not exist");
 
-        // Asignar un ID único al nuevo token de reputación
-        //uint256 tokenId = reputationCounter++;
-
-        // Crear y almacenar el token de reputación
-        /*reputationTokens[tokenId] = Reputation({
-            value: _value,
-            comment: _comment,
-            timestamp: block.timestamp
-        });*/
-
         // Asociar el token de reputación al Soul
         soulToReputationTokenIds[_soulAddress].push(_tokenId);
 
@@ -86,18 +73,8 @@ contract SoulContract is AccessControl {
         require(bytes(souls[_soulAddress].identity).length != 0, "Soul does not exist");
 
         uint256[] memory tokenIds = soulToReputationTokenIds[_soulAddress];
-        /*Reputation[] memory reputationDetails = new Reputation[](tokenIds.length);
-
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            reputationDetails[i] = reputationTokens[tokenIds[i]];
-        }*/
 
         return tokenIds;
     }
 
-    // Obtener un token de reputación específico usando su tokenId
-    /*function getReputationToken(uint256 tokenId) external view returns (Reputation memory) {
-        require(tokenId < reputationCounter, "Reputation token does not exist");
-        return reputationTokens[tokenId];
-    }*/
 }

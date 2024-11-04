@@ -105,7 +105,6 @@ contract RentalSystem is ReentrancyGuard, AccessControl {
             active: true
         });
 
-        //soulContract.createSoul(msg.sender, "Landlord Soul");
         console.log("******1**********");
         console.log(tenants[msg.sender].tenantAddress);
         console.log("******2**********");
