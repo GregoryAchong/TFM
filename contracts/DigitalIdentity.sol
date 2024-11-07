@@ -18,11 +18,11 @@ contract DigitalIdentity is OwnableUpgradeable {
     event DIDDocumentCreated(
         address indexed did,
         address indexed owner,
-        string indexed identifier
+        string identifier
     );
     event DIDDocumentUpdated(
         address indexed did,
-        string indexed newPublicKey,
+        string newPublicKey,
         string newAuthenticationMethod
     );
 
@@ -47,7 +47,7 @@ contract DigitalIdentity is OwnableUpgradeable {
 
         didDocuments[msg.sender] = DIDDocument({
             owner: msg.sender,
-            identifier: string.concat("did:ethr:0x", publicKey),
+            identifier: generateIdentifier(publicKey),
             publicKey: publicKey,
             authenticationMethod: authenticationMethod,
             revoked: false
@@ -99,7 +99,7 @@ contract DigitalIdentity is OwnableUpgradeable {
         doc.publicKey = "0x";
     }
 
-    // Verificacion + ZKP
+    // Get DID when the owner of the DID is getting it
     function getDIDDocument()
         external
         view
@@ -113,7 +113,66 @@ contract DigitalIdentity is OwnableUpgradeable {
         return didDocuments[msg.sender];
     }
 
-    function compareStrings(
+    // Get the DID document by the public key of the DID owner
+    function getDIDDocumentbyPK(
+        string memory userPublicKey,
+        address userAddress
+    ) external view onlyOwner returns (DIDDocument memory did) {
+        require(bytes(userPublicKey).length > 0, "public key is required");
+        require(
+            didDocuments[userAddress].owner != address(0),
+            "DID document does not exist"
+        );
+        require(
+            didDocuments[userAddress].revoked == false,
+            "DID document already revoked"
+        );
+
+        DIDDocument storage doc = didDocuments[userAddress];
+
+        if (compareKeys(doc.publicKey, userPublicKey)) return doc;
+        else revert("Public key does not match");
+    }
+
+    // Get the DID document by the identifier of the DID owner
+    function verifyDIDDocumentbyIdentifier(
+        string memory userIdentifier,
+        address userAddress
+    ) external view onlyOwner returns (DIDDocument memory did) {
+        require(bytes(userIdentifier).length > 0, "identifier key is required");
+        require(
+            didDocuments[userAddress].owner != address(0),
+            "DID document does not exist"
+        );
+        require(
+            didDocuments[userAddress].revoked == false,
+            "DID document already revoked"
+        );
+
+        DIDDocument storage doc = didDocuments[msg.sender];
+        if (compareKeys(doc.identifier, userIdentifier)) return doc;
+        else revert("Identifier does not match")
+
+    }
+
+    function generateIdentifier(
+        string memory publicKey
+    ) internal pure returns (string memory) {
+        bytes32 pubKeyHash = keccak256(abi.encodePacked(publicKey));
+        return string(abi.encodePacked("did:ethr:", toHexString(pubKeyHash)));
+    }
+
+    function toHexString(bytes32 data) internal pure returns (string memory) {
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(64);
+        for (uint256 i = 0; i < 32; i++) {
+            str[2 * i] = alphabet[uint8(data[i] >> 4)];
+            str[2 * i + 1] = alphabet[uint8(data[i] & 0x0f)];
+        }
+        return string(str);
+    }
+
+    function compareKeys(
         string memory _a,
         string memory _b
     ) public pure returns (bool) {
@@ -121,36 +180,5 @@ contract DigitalIdentity is OwnableUpgradeable {
             keccak256(abi.encodePacked(_a)) == keccak256(abi.encodePacked(_b));
     }
 
-    function getDIDDocumentbyPK(
-        string memory namePublicKey
-    ) external view onlyOwner returns (DIDDocument memory did) {
-        require(bytes(namePublicKey).length > 0, "public key name is required");
-        require(
-            didDocuments[msg.sender].revoked == false,
-            "DID document already revoked"
-        );
-
-        DIDDocument storage doc = didDocuments[msg.sender];
-        if (compareStrings(doc.publicKey, namePublicKey))
-            did = didDocuments[msg.sender];
-
-        return did;
-    }
-
-    function verifyDIDDocumentbyID(
-        string memory identifier
-    ) external view onlyOwner returns (DIDDocument memory did) {
-        require(bytes(identifier).length > 0, "identifier key is required");
-        require(
-            didDocuments[msg.sender].revoked == false,
-            "DID document already revoked"
-        );
-
-        DIDDocument storage doc = didDocuments[msg.sender];
-        if (compareStrings(doc.identifier, identifier))
-            did = didDocuments[msg.sender];
-
-        return did;
-    }
     // Other functions for resolving DIDs and additional features...
 }
