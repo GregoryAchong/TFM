@@ -17,4 +17,4 @@ deploy_parameters.json
 deployments
 upgrade_parameters.json
 docker/gethData/
-*.ignore/
+//*.ignore/
