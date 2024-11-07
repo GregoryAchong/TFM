@@ -151,8 +151,7 @@ contract DigitalIdentity is OwnableUpgradeable {
 
         DIDDocument storage doc = didDocuments[msg.sender];
         if (compareKeys(doc.identifier, userIdentifier)) return doc;
-        else revert("Identifier does not match")
-
+        else revert("Identifier does not match");
     }
 
     function generateIdentifier(
