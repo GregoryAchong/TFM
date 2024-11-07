@@ -173,7 +173,7 @@ contract RentalContract is ReentrancyGuard, AccessControl {
      */
     function unpause() external onlyLandlord {
         paused = false;
-        emit Unpaused();
+        //emit Unpaused();
     }
 
     receive() external payable {}
