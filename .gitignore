@@ -8,10 +8,10 @@ coverage.json
 coverage
 .coverage_*
 .openzeppelin
+.vscode
 artifacts/
 docs/interfaces
 docs/mocks
-.vscode/launch.json
 deploy_output.json
 deploy_parameters.json
 deployments
