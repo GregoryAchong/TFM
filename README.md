@@ -1,6 +1,8 @@
 # Sample Hardhat Project
 $ npm install
+
 $ npx hardhat clean
+
 $ npx hardhat compile
 
 $ npx hardhat run scripts/deploy-smart-contract.js --network moonbase
